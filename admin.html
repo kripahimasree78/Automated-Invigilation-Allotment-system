@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard – Invigilation System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f8;min-height:100vh}
+.nav{background:linear-gradient(135deg,#1a1a6e,#4a0080);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 20px rgba(0,0,0,0.25)}
+.nav-brand{display:flex;align-items:center;gap:12px;color:white}
+.nav-icon{width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav-title{font-size:17px;font-weight:700}
+.nav-sub{font-size:11px;opacity:0.7;margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,0.15);color:white;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.swap-badge{background:#e74c3c;color:white;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.swap-badge:hover{background:#c0392b}
+.peer-badge{background:#8b5cf6;color:white;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;animation:pulse 2s infinite}
+.peer-badge:hover{background:#7c3aed}
+.logout-btn{background:rgba(220,50,50,0.85);color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+.logout-btn:hover{background:#c0392b}
+.main{max-width:1100px;margin:0 auto;padding:32px 24px}
+.welcome{background:linear-gradient(135deg,#1a1a6e,#4a0080);color:white;border-radius:18px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
+.welcome h2{font-size:22px;font-weight:800}
+.welcome p{opacity:0.8;font-size:14px;margin-top:5px}
+.welcome-icon{font-size:52px;opacity:0.2}
+.flash{padding:13px 18px;border-radius:10px;margin-bottom:18px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.flash.success{background:#d4edda;color:#155724;border:1.5px solid #b8ddc8}
+.flash.error{background:#f8d7da;color:#721c24;border:1.5px solid #f1b2b7}
+.sec-title{font-size:15px;font-weight:800;color:#1a1a6e;margin:0 0 16px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:2px;background:linear-gradient(to right,rgba(74,0,128,0.3),transparent)}
+.upload-card{background:white;border-radius:18px;padding:28px 32px;box-shadow:0 2px 14px rgba(0,0,0,0.07);margin-bottom:28px;border:2px solid transparent}
+.upload-card.all-done{border-color:#27ae60}
+.upload-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:900px){.upload-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.upload-grid{grid-template-columns:1fr}}
+.file-slot{background:#f8f8ff;border:2px dashed #d0d0ee;border-radius:12px;padding:16px;transition:all 0.3s}
+.file-slot.done{border-color:#27ae60;background:#f0fff4;border-style:solid}
+.file-slot:hover{border-color:#4a0080}
+.slot-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slot-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.slot-icon.blue{background:#eef2ff}
+.slot-icon.green{background:#e8f5e9}
+.slot-icon.orange{background:#fff3e0}
+.slot-icon.purple{background:#f5f0ff}
+.slot-title{font-size:12px;font-weight:800;color:#1a1a6e}
+.slot-sub{font-size:11px;color:#888;margin-top:2px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px}
+.status-pill.uploaded{background:#d4edda;color:#155724}
+.status-pill.pending{background:#fff3cd;color:#856404}
+input[type="file"]{width:100%;font-size:11px;color:#555;padding:6px 8px;background:white;border:1.5px solid #ddd;border-radius:8px;cursor:pointer}
+input[type="file"]:hover{border-color:#4a0080}
+.upload-btn-center{text-align:center;margin-top:4px}
+.upload-submit-btn{padding:13px 40px;background:linear-gradient(135deg,#27ae60,#1e8449);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 16px rgba(39,174,96,0.3);display:inline-flex;align-items:center;gap:8px}
+.upload-submit-btn:hover{transform:translateY(-2px)}
+.doj-info{background:linear-gradient(135deg,#f0ebff,#e8f5e9);border:1.5px solid #c4b5fd;border-radius:12px;padding:14px 20px;margin-bottom:20px;font-size:12px;color:#555;line-height:1.9}
+.doj-info strong{color:#4a0080}
+.doj-table{display:grid;grid-template-columns:auto 1fr;gap:3px 16px;margin-top:6px}
+.doj-table span:nth-child(odd){font-weight:700;color:#1a1a6e;white-space:nowrap}
+.action-row{display:flex;gap:14px;margin-bottom:28px;flex-wrap:wrap}
+.action-btn{padding:13px 26px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-generate{background:linear-gradient(135deg,#1a1a6e,#4a0080);color:white;box-shadow:0 4px 16px rgba(26,26,110,0.3)}
+.btn-generate:hover{transform:translateY(-2px)}
+.btn-count{background:linear-gradient(135deg,#f39c12,#d35400);color:white;box-shadow:0 4px 16px rgba(243,156,18,0.3)}
+.btn-count:hover{transform:translateY(-2px)}
+.btn-swaps{background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;box-shadow:0 4px 16px rgba(231,76,60,0.3)}
+.btn-swaps:hover{transform:translateY(-2px)}
+.btn-add-invig{background:linear-gradient(135deg,#0891b2,#0e7490);color:white;box-shadow:0 4px 16px rgba(8,145,178,0.3)}
+.btn-add-invig:hover{transform:translateY(-2px)}
+.table-card{background:white;border-radius:18px;box-shadow:0 2px 14px rgba(0,0,0,0.07);overflow:hidden}
+.table-header{padding:20px 24px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between}
+.table-header h3{font-size:15px;font-weight:800;color:#1a1a6e}
+.row-count{background:#eef2ff;color:#1a1a6e;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:linear-gradient(135deg,#1a1a6e,#4a0080)}
+thead th{color:white;padding:13px 16px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+tbody tr:nth-child(even){background:#f8f8ff}
+tbody tr:hover{background:#f0eeff}
+tbody td{padding:11px 16px;color:#333;border-bottom:1px solid #eee}
+.session-fn{background:#dbeafe;color:#1d4ed8;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.session-an{background:#fce7f3;color:#9d174d;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.sn{color:#aaa;font-size:12px}
+.post-alloc-row{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap;justify-content:flex-end}
+.btn-modify{background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;box-shadow:0 4px 16px rgba(124,58,237,0.3);padding:13px 26px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-modify:hover{transform:translateY(-2px)}
+.btn-finalize{background:linear-gradient(135deg,#27ae60,#1e8449);color:white;box-shadow:0 4px 16px rgba(39,174,96,0.3);padding:13px 26px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-finalize:hover{transform:translateY(-2px)}
+.empty-state{text-align:center;padding:50px 20px;color:#aaa}
+.empty-icon{font-size:48px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-icon">🎓</div>
+    <div>
+      <div class="nav-title">Invigilation Allotment System</div>
+      <div class="nav-sub">CSE Department · Academic Year 2025-26</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="badge">🛡️ Admin Panel</span>
+    {% if pending_swaps %}
+    <a href="/admin/swaps" class="swap-badge">🔔 {{ pending_swaps|length }} Admin Swap{{ 's' if pending_swaps|length > 1 else '' }}</a>
+    {% endif %}
+    {% if pending_peer %}
+    <a href="/admin/swaps" class="peer-badge">👥 {{ pending_peer|length }} Faculty Swap{{ 's' if pending_peer|length > 1 else '' }}</a>
+    {% endif %}
+    <a href="/logout" class="logout-btn">⏻ Logout</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="welcome">
+    <div>
+      <h2>Welcome, Administrator 👋</h2>
+      <p>Upload timetables, generate allocations, and manage invigilation duties</p>
+    </div>
+    <div class="welcome-icon">📋</div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in messages %}
+    <div class="flash {{ cat }}">{% if cat=='success' %}✅{% else %}⚠️{% endif %} {{ m }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- DOJ Rule Info Box -->
+  
+
+  <div class="sec-title">📂 Upload Data Files</div>
+  <div class="upload-card {% if faculty_tt_uploaded and fn_tt_uploaded and an_tt_uploaded %}all-done{% endif %}">
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <div class="upload-grid">
+
+        <!-- Faculty Timetable -->
+        <div class="file-slot {% if faculty_tt_uploaded %}done{% endif %}">
+          <div class="slot-header">
+            <div class="slot-icon blue">📅</div>
+            <div><div class="slot-title">Faculty Timetable</div><div class="slot-sub">Master schedule .xlsx</div></div>
+          </div>
+          <div class="status-pill {% if faculty_tt_uploaded %}uploaded{% else %}pending{% endif %}">
+            {% if faculty_tt_uploaded %}✅ Uploaded{% else %}⏳ Pending{% endif %}
+          </div><br>
+          <input type="file" name="faculty_tt" accept=".xlsx">
+        </div>
+
+        <!-- FN Exam Timetable -->
+        <div class="file-slot {% if fn_tt_uploaded %}done{% endif %}">
+          <div class="slot-header">
+            <div class="slot-icon green">🌅</div>
+            <div><div class="slot-title">FN Exam Timetable</div><div class="slot-sub">Forenoon exams .xlsx</div></div>
+          </div>
+          <div class="status-pill {% if fn_tt_uploaded %}uploaded{% else %}pending{% endif %}">
+            {% if fn_tt_uploaded %}✅ Uploaded{% else %}⏳ Pending{% endif %}
+          </div><br>
+          <input type="file" name="fn_tt" accept=".xlsx">
+        </div>
+
+        <!-- AN Exam Timetable -->
+        <div class="file-slot {% if an_tt_uploaded %}done{% endif %}">
+          <div class="slot-header">
+            <div class="slot-icon orange">🌇</div>
+            <div><div class="slot-title">AN Exam Timetable</div><div class="slot-sub">Afternoon exams .xlsx</div></div>
+          </div>
+          <div class="status-pill {% if an_tt_uploaded %}uploaded{% else %}pending{% endif %}">
+            {% if an_tt_uploaded %}✅ Uploaded{% else %}⏳ Pending{% endif %}
+          </div><br>
+          <input type="file" name="an_tt" accept=".xlsx">
+        </div>
+
+        <!-- Staff Joining Dates — .docx -->
+        <div class="file-slot {% if joining_dates_uploaded %}done{% endif %}">
+          <div class="slot-header">
+            <div class="slot-icon purple">📋</div>
+            <div><div class="slot-title">Staff Joining Dates</div><div class="slot-sub">DOJ for invig limits .docx</div></div>
+          </div>
+          <div class="status-pill {% if joining_dates_uploaded %}uploaded{% else %}pending{% endif %}">
+            {% if joining_dates_uploaded %}✅ Uploaded{% else %}⏳ Pending{% endif %}
+          </div><br>
+          <input type="file" name="joining_dates" accept=".docx">
+        </div>
+
+      </div>
+      <div class="upload-btn-center">
+        <button type="submit" class="upload-submit-btn">⬆ Upload Selected Files</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="sec-title">⚙️ Generate &amp; Review Allocations</div>
+
+  <!-- Generate form with slot counts -->
+  <form action="/generate" method="post" style="margin-bottom:20px">
+    <div style="background:white;border-radius:14px;padding:20px 28px;box-shadow:0 2px 14px rgba(0,0,0,0.07);display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;font-weight:700;color:#1a1a6e">🌅 FN invigilators/slot:</span>
+        <input type="number" name="fn_per_slot" value="{{ fn_per_slot }}" min="1" max="20"
+          style="width:70px;padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-size:14px;font-weight:700;text-align:center;color:#1a1a6e;outline:none">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;font-weight:700;color:#1a1a6e">🌇 AN invigilators/slot:</span>
+        <input type="number" name="an_per_slot" value="{{ an_per_slot }}" min="1" max="20"
+          style="width:70px;padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-size:14px;font-weight:700;text-align:center;color:#1a1a6e;outline:none">
+      </div>
+      <button type="submit" class="action-btn btn-generate" style="margin:0">🔄 Generate Allocations</button>
+    </div>
+  </form>
+
+  <div class="action-row">
+    {% if allocations %}
+    <a href="/assigned_count"         class="action-btn btn-count">📊 Assigned Count</a>
+    <a href="/admin/swaps"            class="action-btn btn-swaps">🔄 Manage Swaps{% if pending_swaps or pending_peer %} ({{ (pending_swaps|length) + (pending_peer|length) }}){% endif %}</a>
+    <a href="/admin/add_invigilation" class="action-btn btn-add-invig">➕ Add Invigilations</a>
+    {% endif %}
+  </div>
+
+  {% if allocations %}
+  <div class="table-card">
+    <div class="table-header">
+      <h3>📋 Generated Allocations</h3>
+      <span class="row-count">{{ allocations|length }} assignments</span>
+    </div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Date</th><th>Day</th><th>Session</th><th>Faculty Name</th></tr>
+      </thead>
+      <tbody>
+        {% for a in allocations %}
+        <tr>
+          <td class="sn">{{ loop.index }}</td>
+          <td>{{ a.date }}</td>
+          <td>{{ a.day }}</td>
+          <td><span class="session-{{ a.session|lower }}">{{ a.session }}</span></td>
+          <td>{{ a.faculty }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="post-alloc-row">
+    <a href="/admin/modify" class="btn-modify">⚙️ Modify Allocations</a>
+    <a href="/finalize"     class="btn-finalize">✅ Finalize &amp; View Report</a>
+  </div>
+
+  {% else %}
+  <div class="table-card">
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>No allocations yet.<br>Upload the required files, set slot counts, then click <strong>Generate Allocations</strong>.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>

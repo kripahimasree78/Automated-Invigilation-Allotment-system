@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Invigilations – Faculty Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f8;min-height:100vh}
+.nav{background:linear-gradient(135deg,#0a6e3a,#006b30);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 20px rgba(0,0,0,0.25)}
+.nav-brand{display:flex;align-items:center;gap:12px;color:white}
+.nav-icon{width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav-title{font-size:17px;font-weight:700}
+.nav-sub{font-size:11px;opacity:0.7;margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.user-badge{background:rgba(255,255,255,0.15);color:white;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif-badge{background:#e74c3c;color:white;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;animation:pulse 2s infinite;cursor:pointer}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.logout-btn{background:rgba(220,50,50,0.85);color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap}
+.logout-btn:hover{background:#c0392b}
+.main{max-width:980px;margin:0 auto;padding:32px 24px}
+.welcome{background:linear-gradient(135deg,#0a6e3a,#006b30);color:white;border-radius:18px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
+.welcome h2{font-size:22px;font-weight:800}
+.welcome p{opacity:0.8;font-size:14px;margin-top:5px}
+.welcome-icon{font-size:52px;opacity:0.2}
+.flash{padding:13px 18px;border-radius:10px;margin-bottom:18px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.flash.success{background:#d4edda;color:#155724;border:1.5px solid #b8ddc8}
+.flash.error{background:#f8d7da;color:#721c24;border:1.5px solid #f1b2b7}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+.stat-card{background:white;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.07);text-align:center}
+.stat-num{font-size:40px;font-weight:800;line-height:1}
+.stat-lbl{font-size:12px;color:#888;margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px}
+.stat-card.total .stat-num{color:#0a6e3a}
+.stat-card.fn .stat-num{color:#1d4ed8}
+.stat-card.an .stat-num{color:#9d174d}
+.sec-title{font-size:15px;font-weight:800;color:#0a6e3a;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:2px;background:linear-gradient(to right,rgba(10,110,58,0.3),transparent)}
+.table-card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:28px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:linear-gradient(135deg,#0a6e3a,#006b30)}
+thead th{color:white;padding:13px 18px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+tbody tr:nth-child(even){background:#f5fff8}
+tbody tr:hover{background:#e8f5ed}
+tbody td{padding:12px 18px;color:#333;border-bottom:1px solid #eee;vertical-align:middle}
+.session-fn{background:#dbeafe;color:#1d4ed8;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.session-an{background:#fce7f3;color:#9d174d;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.day-pill{background:#e8ffe8;color:#0a6e3a;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.sn{color:#bbb;font-size:12px}
+.action-group{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.swap-btn{padding:6px 12px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.swap-btn:hover{transform:translateY(-1px);opacity:0.9}
+.peer-swap-btn{padding:6px 12px;background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.peer-swap-btn:hover{transform:translateY(-1px);opacity:0.9}
+.swap-pending{background:#fff3cd;color:#856404;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;display:inline-block}
+.peer-pending{background:#f3f0ff;color:#7c3aed;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;display:inline-block}
+.no-eligible-tag{background:#f8d7da;color:#721c24;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;display:inline-block}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:white;border-radius:20px;padding:32px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3)}
+.modal h3{font-size:18px;font-weight:800;color:#1a1a6e;margin-bottom:6px}
+.modal p{font-size:13px;color:#666;margin-bottom:20px}
+.modal-meta{background:#f5f5ff;border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;line-height:1.9}
+.modal-meta strong{color:#1a1a6e}
+.modal label{display:block;font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.modal textarea{width:100%;padding:11px 14px;border-radius:10px;border:1.8px solid #e0e0f0;font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;transition:border 0.2s}
+.modal textarea:focus{border-color:#4a0080;box-shadow:0 0 0 4px rgba(74,0,128,0.08)}
+.modal select{width:100%;padding:11px 14px;border-radius:10px;border:1.8px solid #e0e0f0;font-size:13px;font-family:inherit;outline:none;background:#f8f8ff;transition:border 0.2s;color:#333}
+.modal select:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,0.08)}
+.modal-btns{display:flex;gap:12px;margin-top:20px}
+.modal-submit{flex:1;padding:12px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.modal-submit.purple{background:linear-gradient(135deg,#7c3aed,#4a0080)}
+.modal-submit:hover{opacity:0.9}
+.modal-cancel{flex:1;padding:12px;background:#f0f0f0;color:#555;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.modal-cancel:hover{background:#e0e0e0}
+.eligible-note{background:#f0ebff;border:1.5px solid #d8c5ff;border-radius:10px;padding:11px 14px;font-size:12px;color:#4a0080;margin-bottom:14px;font-weight:600}
+.no-eligible-msg{background:#fff3cd;border:1.5px solid #fcd34d;border-radius:10px;padding:14px;font-size:13px;color:#856404;font-weight:600;margin-top:10px}
+
+/* Incoming */
+.incoming-banner{background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;border-radius:16px;padding:20px 24px;margin-bottom:24px}
+.incoming-banner h4{font-size:15px;font-weight:800;margin-bottom:12px}
+.incoming-req{background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.incoming-req:last-child{margin-bottom:0}
+.inc-info{font-size:13px;line-height:1.7}
+.inc-info strong{font-size:14px}
+.inc-btns{display:flex;gap:8px}
+.btn-accept{padding:8px 18px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-accept:hover{background:#1e8449}
+.btn-decline{padding:8px 18px;background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-decline:hover{background:rgba(255,255,255,0.25)}
+
+/* History */
+.swap-history-card{background:white;border-radius:14px;padding:18px 22px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:12px;border-left:5px solid #e74c3c;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.swap-history-card.approved{border-left-color:#27ae60}
+.swap-history-card.rejected{border-left-color:#95a5a6;opacity:0.7}
+.swap-history-card.accepted{border-left-color:#27ae60}
+.swap-history-card.peer-hist{border-left-color:#7c3aed}
+.sh-info{font-size:13px;color:#333;flex:1}
+.sh-info strong{font-size:14px;color:#1a1a6e}
+.sh-meta{font-size:12px;color:#888;margin-top:4px}
+.replaced-by{font-size:12px;color:#27ae60;font-weight:700;margin-top:4px}
+.status-badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;white-space:nowrap}
+.status-pending{background:#fff3cd;color:#856404}
+.status-approved{background:#d4edda;color:#155724}
+.status-rejected{background:#f8d7da;color:#721c24}
+.status-accepted{background:#d4edda;color:#155724}
+.empty-state{text-align:center;padding:50px;color:#aaa}
+.empty-icon{font-size:52px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-icon">👨‍🏫</div>
+    <div><div class="nav-title">Invigilation Allotment System</div><div class="nav-sub">Faculty Portal · CSE Department</div></div>
+  </div>
+  <div class="nav-right">
+    <span class="user-badge" title="{{ faculty_name }}">👤 {{ faculty_name }}</span>
+    {% if peer_incoming %}
+    <span class="notif-badge" onclick="scrollToIncoming()">🔔 {{ peer_incoming|length }} Request{{ 's' if peer_incoming|length > 1 else '' }}</span>
+    {% endif %}
+    <a href="/logout" class="logout-btn">⏻ Logout</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="welcome">
+    <div><h2>Hello, {{ faculty_name }} 👋</h2><p>Your assigned invigilation duties for the upcoming exam session</p></div>
+    <div class="welcome-icon">📝</div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in messages %}
+    <div class="flash {{ cat }}">{% if cat=='success' %}✅{% else %}⚠️{% endif %} {{ m }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% if peer_incoming %}
+  <div class="incoming-banner" id="incomingSection">
+    <h4>🔔 Incoming Swap Requests from Colleagues</h4>
+    {% for s in peer_incoming %}
+    <div class="incoming-req">
+      <div class="inc-info">
+        <strong>{{ s.requester }}</strong> is requesting you to take over their invigilation<br>
+        📅 {{ s.date }} · 📆 {{ s.day }} · {{ s.session }} Session · Submitted: {{ s.submitted }}
+      </div>
+      <div class="inc-btns">
+        <form action="/faculty/peer_swap_respond" method="post" style="display:inline">
+          <input type="hidden" name="swap_id" value="{{ s.id }}">
+          <input type="hidden" name="action" value="accept">
+          <button type="submit" class="btn-accept">✅ Accept</button>
+        </form>
+        <form action="/faculty/peer_swap_respond" method="post" style="display:inline">
+          <input type="hidden" name="swap_id" value="{{ s.id }}">
+          <input type="hidden" name="action" value="decline">
+          <button type="submit" class="btn-decline">✖ Decline</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="stats-row">
+    <div class="stat-card total"><div class="stat-num">{{ total }}</div><div class="stat-lbl">Total Invigilations</div></div>
+    <div class="stat-card fn">
+      <div class="stat-num">{{ my_allocs | selectattr('1.session','equalto','FN') | list | length }}</div>
+      <div class="stat-lbl">FN Sessions</div>
+    </div>
+    <div class="stat-card an">
+      <div class="stat-num">{{ my_allocs | selectattr('1.session','equalto','AN') | list | length }}</div>
+      <div class="stat-lbl">AN Sessions</div>
+    </div>
+  </div>
+
+  <div class="sec-title">📋 My Invigilation Schedule</div>
+  <div class="table-card">
+    {% if my_allocs %}
+    <table>
+      <thead>
+        <tr><th>#</th><th>Faculty Name</th><th>Date</th><th>Day</th><th>Session</th><th>Swap Options</th></tr>
+      </thead>
+      <tbody>
+        {% for idx, a in my_allocs %}
+        {% set has_admin_pending = my_swaps | selectattr('alloc_index','equalto',idx) | selectattr('status','equalto','pending') | list | length > 0 %}
+        {% set has_peer_pending = peer_sent | selectattr('alloc_index','equalto',idx) | selectattr('status','equalto','pending') | list | length > 0 %}
+        <tr>
+          <td class="sn">{{ loop.index }}</td>
+          <td><strong>{{ a.faculty }}</strong></td>
+          <td>{{ a.date }}</td>
+          <td><span class="day-pill">{{ a.day }}</span></td>
+          <td><span class="session-{{ a.session|lower }}">{{ a.session }}</span></td>
+          <td>
+            <div class="action-group">
+              {% if has_admin_pending %}
+                <span class="swap-pending">⏳ Admin Pending</span>
+              {% elif has_peer_pending %}
+                <span class="peer-pending">⏳ Faculty Pending</span>
+              {% else %}
+                <button class="swap-btn" onclick="openAdminSwapModal({{ idx }}, '{{ a.date }}', '{{ a.day }}', '{{ a.session }}')">
+                  🔔 Request Admin Swap
+                </button>
+                <button class="peer-swap-btn" onclick="openPeerSwapModal({{ idx }}, '{{ a.date }}', '{{ a.day }}', '{{ a.session }}')">
+                  👥 Request Faculty Swap
+                </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>No invigilations assigned to you yet.<br>Check back after admin generates allocations.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if my_swaps %}
+  <div class="sec-title">🔔 My Admin Swap Requests</div>
+  {% for s in my_swaps | reverse %}
+  <div class="swap-history-card {{ s.status }}">
+    <div class="sh-info">
+      <strong>{{ s.date }} · {{ s.day }} · {{ s.session }} Session</strong>
+      <div class="sh-meta">💬 {{ s.reason }} · Submitted: {{ s.submitted }}</div>
+      {% if s.replaced_by %}<div class="replaced-by">↩️ Replaced by: {{ s.replaced_by }}</div>{% endif %}
+    </div>
+    <span class="status-badge status-{{ s.status }}">
+      {% if s.status=='pending' %}⏳ Pending
+      {% elif s.status=='approved' %}✅ Approved
+      {% else %}❌ Rejected{% endif %}
+    </span>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if peer_sent %}
+  <div class="sec-title">👥 My Faculty Swap Requests</div>
+  {% for s in peer_sent | reverse %}
+  <div class="swap-history-card peer-hist {{ s.status }}">
+    <div class="sh-info">
+      <strong>{{ s.date }} · {{ s.day }} · {{ s.session }} Session</strong>
+      <div class="sh-meta">
+        Requested <strong>{{ s.target }}</strong> to replace · Submitted: {{ s.submitted }}
+        {% if s.resolved %} · Resolved: {{ s.resolved }}{% endif %}
+      </div>
+    </div>
+    <span class="status-badge status-{{ s.status }}">
+      {% if s.status=='pending' %}⏳ Waiting for {{ s.target }}
+      {% elif s.status=='accepted' %}✅ Accepted
+      {% else %}❌ Declined{% endif %}
+    </span>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<!-- ADMIN SWAP MODAL -->
+<div class="modal-overlay" id="adminSwapModal">
+  <div class="modal">
+    <h3>🔔 Request Admin-Mediated Swap</h3>
+    <p>Your request goes to the admin who will select an eligible replacement faculty for you.</p>
+    <div class="modal-meta" id="adminModalMeta"></div>
+    <form action="/faculty/swap_request" method="post">
+      <input type="hidden" name="alloc_index" id="adminModalAllocIndex">
+      <label>Reason for Swap Request</label>
+      <textarea name="reason" placeholder="Enter your reason (e.g. medical appointment, personal commitment...)"></textarea>
+      <div class="modal-btns">
+        <button type="button" class="modal-cancel" onclick="closeAdminModal()">Cancel</button>
+        <button type="submit" class="modal-submit">Submit to Admin →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PEER SWAP MODAL -->
+<div class="modal-overlay" id="peerSwapModal">
+  <div class="modal">
+    <h3>👥 Request Faculty Swap</h3>
+    <p>Select a colleague to take over your invigilation duty. Only faculty who are free and eligible for this exact slot are shown.</p>
+    <div class="modal-meta" id="peerModalMeta"></div>
+    <form action="/faculty/peer_swap_request" method="post" id="peerSwapForm">
+      <input type="hidden" name="alloc_index" id="peerModalAllocIndex">
+      <div id="peerSelectSection">
+        <label>Select Eligible Faculty</label>
+        <select name="target_faculty" id="peerFacultySelect" required>
+          <option value="">— Loading... —</option>
+        </select>
+      </div>
+      <div id="peerNoEligible" class="no-eligible-msg" style="display:none">
+        ⚠️ No eligible faculty are currently available for this slot. All free faculty have either reached their max count, are already assigned on this date, or are busy during this session.
+      </div>
+      <div class="modal-btns">
+        <button type="button" class="modal-cancel" onclick="closePeerModal()">Cancel</button>
+        <button type="submit" class="modal-submit purple" id="peerSubmitBtn">Send Request →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Embed eligible map from server as JS variable (the safe way) -->
+<script>
+// eligible_map: keys are alloc indexes (as strings), values are arrays of faculty names
+var ELIGIBLE_MAP = {{ eligible_map | tojson }};
+
+function openAdminSwapModal(idx, date, day, sess) {
+  document.getElementById('adminModalAllocIndex').value = idx;
+  document.getElementById('adminModalMeta').innerHTML =
+    '<strong>Date:</strong> ' + date + ' &nbsp;|&nbsp; <strong>Day:</strong> ' + day + ' &nbsp;|&nbsp; <strong>Session:</strong> ' + sess;
+  document.getElementById('adminSwapModal').classList.add('active');
+}
+function closeAdminModal() {
+  document.getElementById('adminSwapModal').classList.remove('active');
+}
+
+function openPeerSwapModal(idx, date, day, sess) {
+  document.getElementById('peerModalAllocIndex').value = idx;
+  document.getElementById('peerModalMeta').innerHTML =
+    '<strong>Date:</strong> ' + date + ' &nbsp;|&nbsp; <strong>Day:</strong> ' + day + ' &nbsp;|&nbsp; <strong>Session:</strong> ' + sess +
+    '<br><small style="color:#888;font-size:11px">Only showing faculty available for this exact slot</small>';
+
+  var eligibleList = ELIGIBLE_MAP[String(idx)] || [];
+  var sel = document.getElementById('peerFacultySelect');
+  var noEl = document.getElementById('peerNoEligible');
+  var selectSection = document.getElementById('peerSelectSection');
+  var submitBtn = document.getElementById('peerSubmitBtn');
+
+  // Reset
+  sel.innerHTML = '';
+  noEl.style.display = 'none';
+  selectSection.style.display = 'block';
+  submitBtn.disabled = false;
+
+  if (eligibleList.length === 0) {
+    selectSection.style.display = 'none';
+    noEl.style.display = 'block';
+    submitBtn.disabled = true;
+  } else {
+    var defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = '— Choose a colleague (' + eligibleList.length + ' available) —';
+    sel.appendChild(defaultOpt);
+    eligibleList.forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = '👤 ' + name;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById('peerSwapModal').classList.add('active');
+}
+function closePeerModal() {
+  document.getElementById('peerSwapModal').classList.remove('active');
+}
+function scrollToIncoming() {
+  var el = document.getElementById('incomingSection');
+  if (el) el.scrollIntoView({behavior: 'smooth'});
+}
+// Close on overlay click
+['adminSwapModal','peerSwapModal'].forEach(function(id) {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+});
+</script>
+</body>
+</html>

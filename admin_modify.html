@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Modify Allocations – Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f8;min-height:100vh}
+.nav{background:linear-gradient(135deg,#1a1a6e,#4a0080);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 20px rgba(0,0,0,0.25)}
+.nav-brand{display:flex;align-items:center;gap:12px;color:white}
+.nav-icon{width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.nav-title{font-size:17px;font-weight:700}
+.nav-sub{font-size:11px;opacity:0.7;margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.back-btn{background:rgba(255,255,255,0.15);color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.back-btn:hover{background:rgba(255,255,255,0.25)}
+.logout-btn{background:rgba(220,50,50,0.85);color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+.logout-btn:hover{background:#c0392b}
+.main{max-width:900px;margin:0 auto;padding:32px 24px}
+.page-header{background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;border-radius:18px;padding:26px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
+.page-header h2{font-size:20px;font-weight:800}
+.page-header p{opacity:0.85;font-size:13px;margin-top:4px}
+.header-icon{font-size:52px;opacity:0.2}
+.steps{display:flex;align-items:center;margin-bottom:28px}
+.step{display:flex;align-items:center;gap:10px;flex:1}
+.step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0}
+.step.active .step-num{background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;box-shadow:0 4px 14px rgba(124,58,237,0.4)}
+.step.done .step-num{background:#27ae60;color:white}
+.step.inactive .step-num{background:#e0e0e0;color:#999}
+.step-label{font-size:13px;font-weight:700;color:#333}
+.step.inactive .step-label{color:#aaa}
+.step-line{height:3px;flex:1;background:#e0e0e0;margin:0 8px}
+.step-line.done{background:#27ae60}
+.card{background:white;border-radius:18px;padding:28px 32px;box-shadow:0 2px 14px rgba(0,0,0,0.07);margin-bottom:24px}
+.card-title{font-size:15px;font-weight:800;color:#1a1a6e;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card-title::after{content:'';flex:1;height:2px;background:linear-gradient(to right,rgba(74,0,128,0.3),transparent)}
+.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.ctrl-btn{padding:8px 16px;border-radius:8px;border:1.5px solid #ddd;background:white;font-size:13px;font-weight:600;cursor:pointer;color:#555;transition:all 0.2s}
+.ctrl-btn:hover{border-color:#4a0080;color:#4a0080}
+.search-wrap{flex:1;min-width:200px}
+.search-input{width:100%;padding:9px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;outline:none;background:#f8f8ff;transition:all 0.2s}
+.search-input:focus{border-color:#4a0080;box-shadow:0 0 0 3px rgba(74,0,128,0.08)}
+.faculty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:480px;overflow-y:auto;padding-right:4px}
+.fac-check-card{border:2px solid #e8e8f4;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.2s;background:#fafaff}
+.fac-check-card:hover{border-color:#7c3aed;background:#f3f0ff}
+.fac-check-card.selected{border-color:#7c3aed;background:#f3f0ff}
+.fac-check-card input[type="checkbox"]{width:18px;height:18px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0}
+.fac-info{flex:1}
+.fac-name{font-size:13px;font-weight:700;color:#1a1a6e}
+.fac-meta{font-size:11px;color:#888;margin-top:3px}
+.count-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#eef2ff;color:#4338ca;margin-right:4px}
+.selected-count{background:#7c3aed;color:white;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-left:10px}
+.max-table-wrap{overflow:hidden;border-radius:12px;border:1.5px solid #e8e8f4}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:linear-gradient(135deg,#7c3aed,#4a0080)}
+thead th{color:white;padding:13px 18px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+tbody tr:nth-child(even){background:#f8f8ff}
+tbody tr:hover{background:#f0eeff}
+tbody td{padding:12px 18px;color:#333;border-bottom:1px solid #eee;vertical-align:middle}
+.max-input{width:90px;padding:8px 12px;border:1.8px solid #ddd;border-radius:8px;font-size:13px;text-align:center;outline:none;font-weight:700;color:#1a1a6e;transition:all 0.2s}
+.max-input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.1)}
+.max-input::-webkit-inner-spin-button,.max-input::-webkit-outer-spin-button{opacity:1}
+.btn-row{display:flex;gap:14px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap}
+.btn-next{padding:13px 32px;background:linear-gradient(135deg,#7c3aed,#4a0080);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.25s;box-shadow:0 4px 16px rgba(124,58,237,0.3)}
+.btn-next:hover{transform:translateY(-2px)}
+.btn-cancel{padding:13px 24px;background:white;color:#666;border:2px solid #ddd;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+.btn-cancel:hover{border-color:#4a0080;color:#4a0080}
+.btn-apply{padding:13px 32px;background:linear-gradient(135deg,#27ae60,#1e8449);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.25s;box-shadow:0 4px 16px rgba(39,174,96,0.3)}
+.btn-apply:hover{transform:translateY(-2px)}
+.info-box{background:#f0ebff;border:1.5px solid #d8c5ff;border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.8}
+.info-box strong{color:#4a0080}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-icon">🎓</div>
+    <div>
+      <div class="nav-title">Invigilation Allotment System</div>
+      <div class="nav-sub">CSE Department · Academic Year 2025-26</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="/admin" class="back-btn">← Back to Dashboard</a>
+    <a href="/logout" class="logout-btn">⏻ Logout</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="page-header">
+    <div>
+      <h2>⚙️ Modify Allocation Limits</h2>
+      <p>Override maximum invigilation count per faculty and regenerate assignments</p>
+    </div>
+    <div class="header-icon">⚙️</div>
+  </div>
+
+  
+
+  <!-- STEP 1 -->
+  <div id="step1">
+   
+    <div class="card">
+      <div class="card-title">
+        👥 Faculty with Assigned Duties
+        <span class="selected-count" id="selCount">0 selected</span>
+      </div>
+      <div class="controls">
+        <button type="button" class="ctrl-btn" onclick="selectAll()">✅ Select All</button>
+        <button type="button" class="ctrl-btn" onclick="clearAll()">✖ Clear All</button>
+        <div class="search-wrap">
+          <input type="text" class="search-input" placeholder="🔍 Search faculty..." oninput="filterFaculty(this.value)">
+        </div>
+      </div>
+      <div class="faculty-grid" id="facultyGrid">
+        {% for f in faculty_data %}
+        <label class="fac-check-card" data-name="{{ f.name|lower }}">
+          <input type="checkbox" class="fac-cb" value="{{ f.name }}" onchange="updateCount(this)">
+          <div class="fac-info">
+            <div class="fac-name">{{ f.name }}</div>
+            <div class="fac-meta">
+              <span class="count-pill">📋 {{ f.current_count }} assigned</span>
+              <span style="font-size:10px;color:#aaa">· default max {{ f.default_max }}</span>
+            </div>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="btn-row">
+      <a href="/admin" class="btn-cancel">✖ Cancel</a>
+      <button type="button" class="btn-next" onclick="goToStep2()">Next: Set Max Counts →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step2" class="hidden">
+    
+    <form action="/admin/modify_submit" method="post">
+      <div class="card">
+        <div class="card-title">📝 Custom Max Invigilation Count</div>
+        <div class="max-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Faculty Name</th>
+                <th>Current Count</th>
+                <th>Default Max</th>
+                <th>New Max Count</th>
+              </tr>
+            </thead>
+            <tbody id="step2Table"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-cancel" onclick="goToStep1()">← Back</button>
+        <button type="submit" class="btn-apply">✅ Apply &amp; Regenerate Allocations</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var facultyData = {{ faculty_data | tojson }};
+
+function updateCount(cb) {
+  var card = cb.closest('.fac-check-card');
+  if (cb.checked) card.classList.add('selected');
+  else card.classList.remove('selected');
+  document.getElementById('selCount').textContent =
+    document.querySelectorAll('.fac-cb:checked').length + ' selected';
+}
+
+function selectAll() {
+  document.querySelectorAll('.fac-check-card').forEach(function(card) {
+    if (card.style.display !== 'none') {
+      card.querySelector('.fac-cb').checked = true;
+      card.classList.add('selected');
+    }
+  });
+  document.getElementById('selCount').textContent =
+    document.querySelectorAll('.fac-cb:checked').length + ' selected';
+}
+
+function clearAll() {
+  document.querySelectorAll('.fac-cb').forEach(function(cb) {
+    cb.checked = false;
+    cb.closest('.fac-check-card').classList.remove('selected');
+  });
+  document.getElementById('selCount').textContent = '0 selected';
+}
+
+function filterFaculty(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.fac-check-card').forEach(function(card) {
+    card.style.display = (card.getAttribute('data-name') || '').includes(q) ? '' : 'none';
+  });
+}
+
+function goToStep2() {
+  var selected = Array.from(document.querySelectorAll('.fac-cb:checked')).map(function(cb){ return cb.value; });
+  if (selected.length === 0) { alert('Please select at least one faculty member.'); return; }
+
+  var tbody = document.getElementById('step2Table');
+  tbody.innerHTML = '';
+  selected.forEach(function(name, idx) {
+    var fd = facultyData.find(function(f){ return f.name === name; }) || {};
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="color:#aaa;font-size:12px">' + (idx+1) + '</td>' +
+      '<td><strong>' + name + '</strong><input type="hidden" name="selected_faculty" value="' + name + '"></td>' +
+      '<td><span class="count-pill">📋 ' + (fd.current_count || 0) + '</span></td>' +
+      '<td style="color:#888;font-size:12px">' + (fd.default_max || 4) + '</td>' +
+      '<td><input type="number" class="max-input" name="max_' + name + '" value="' + (fd.current_count || 0) + '" min="0" max="20" placeholder="' + (fd.default_max || 4) + '"></td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('s1').classList.remove('active');
+  document.getElementById('s1').classList.add('done');
+  document.getElementById('line1').classList.add('done');
+}
+
+function goToStep1() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('s1').classList.add('active');
+  document.getElementById('s1').classList.remove('done');
+  document.getElementById('line1').classList.remove('done');
+}
+</script>
+</body>
+</html>
